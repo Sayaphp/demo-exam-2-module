@@ -103,7 +103,7 @@ docker load -i postgresql_latest.tar
 
 cd
 mkdir -p /usr/docker
-cat > /usr/docker/docker-compose.yml << 'EOF'
+```cat > /usr/docker/docker-compose.yml << 'EOF'
 services:
   testapp:
     image: site:latest

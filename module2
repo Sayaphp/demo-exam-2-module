@@ -3,36 +3,36 @@
 
 🐧 ISP
 
-```vim /etc/chrony.conf
+vim /etc/chrony.conf
 local stratum 5
 allow 0.0.0.0/0
-systemctl restart chronyd```
+systemctl restart chronyd
 
 🍃 BR-RTR
 
 ntp server 172.16.2.1
 
-```security-profile 0
+security-profile 0
 rule 0 permit tcp any any eq 22
 security 0
 
-write memory```
+write memory
 
 
 🍃 HQ-RTR
-```security-profile 0
+security-profile 0
 rule 0 permit tcp any any eq 22
 security 0
 
-write memory```
+write memory
 
 🐧 HQ-SRV
-```apt-get update && apt-get install chrony nfs-server -y```
+apt-get update && apt-get install chrony nfs-server -y
 
-```vim /etc/chrony.conf
+vim /etc/chrony.conf
 #pool pool.ntp.org iburst
 server 172.16.1.1 iburst
-systemctl restart chronyd```
+systemctl restart chronyd
 
 mdadm --create /dev/md0 -l0 -n 2 /dev/sdb /dev/sdc
 mkfs.ext4 /dev/md0
@@ -63,6 +63,7 @@ vim /etc/fstab
 mount -av
 
 systemctl enable --now sshd
+
 🐧 BR-SRV
 apt-get update && apt-get install chrony ansible sshpass -y
 vim /etc/chrony.conf
@@ -85,10 +86,11 @@ br-rtr ansible_host=192.168.2.1 ansible_user=admin ansible_password=admin ansibl
 ansible all -m ping
 
 5 tasks done - easy
-🐧 BR-SRV
+
+🐧 BR-SRV 
 apt-get update
-apt-get install -y docker-engine docker-compose
-systemctl enable --now docker
+apt-get install -y docker-engine docker-compose           
+systemctl enable --now docker       
 
 lsblk
 mkdir /mnt/cdrom
@@ -140,6 +142,48 @@ docker compose up -d
 docker ps -a
 http://192.168.2.2:8080
 (в зависимости от айпи серва)
+
+🐧 BR-SRV (Если mariadb) 
+apt-get install -y docker-engine docker-compose
+systemctl enable --now docker
+mkdir /mnt/cdrom
+mount /dev/sr0 /mnt/cdrom
+ls /mnt/cdrom/docker
+cd /mnt/cdrom/docker
+docker load -i site_latest.tar
+docker load -i mariadb_latest.tar
+mkdir /usr/docker
+vim /usr/docker/docker-compose.yml
+services:
+  testapp:
+    image: site:latest
+    container_name: tespapp
+    restart: always
+    ports:
+      - "8080:8000"
+    environment:
+      DB_TYPE: maria
+      DB_HOST: db
+      DB_NAME: testdb
+      DB_PORT: 3306
+      DB_USER: test
+      DB_PASS: P@ssw0rd
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.11
+    container_name: db
+    restart: always
+    environment:
+      MARIADB_DATABASE: testdb
+      MARIADB_USER: test
+      MARIADB_PASSWORD: P@ssw0rd
+      MARIADB_ROOT_PASSWORD: rootpass
+cd /usr/docker
+docker compose config
+docker compose up -d
+docker ps -a
 
 🐧 HQ-SRV
 apt-get install httpd2 apache2-mod_php8.1 php8.1 php8.1-mysqlnd php8.1-mysqli -y

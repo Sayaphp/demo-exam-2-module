@@ -3,10 +3,10 @@
 
 🐧 ISP
 
-vim /etc/chrony.conf
+'''vim /etc/chrony.conf
 local stratum 5
 allow 0.0.0.0/0
-systemctl restart chronyd
+systemctl restart chronyd'''
 
 🍃 BR-RTR
 
